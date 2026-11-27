@@ -19,7 +19,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: microsoft/setup-msbuild@v2
       - uses: NuGet/setup-nuget@v2
@@ -50,7 +50,7 @@ jobs:
     env:
       OMP_THREAD_LIMIT: "1"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-dotnet@v4
         with:
