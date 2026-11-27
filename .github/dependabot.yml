@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # GitHub Actions used by the CI workflow
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+
+  # NuGet packages (packages.config for the web app, PackageReference for the tests)
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5

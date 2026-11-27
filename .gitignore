@@ -1,0 +1,39 @@
+# ---- Build output and IDE files ----
+bin/
+obj/
+packages/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+TestResults/
+*.trx
+
+# ---- Editor history (VS Code Local History keeps old copies of every file, including old secrets) ----
+.history/
+
+# ---- Local secrets: never commit; App_Data/secrets.config.example is the template ----
+**/App_Data/secrets.config
+*.pfx
+*.publishsettings
+
+# ---- Runtime data created by the app ----
+**/App_Data/*.db
+**/App_Data/*.db-wal
+**/App_Data/*.db-shm
+**/App_Data/Bills/
+**/App_Data/uploads/
+**/App_Data/logs/
+bills_project/data/
+
+# ---- Generated OCR benchmark images (regenerate with tools/ocr-benchmark/generate_bills.py) ----
+tools/ocr-benchmark/data/
+tools/ocr-benchmark/test/
+tools/ocr-benchmark/__pycache__/
+ocr-benchmark.md
+
+# ---- OS files ----
+Thumbs.db
+.DS_Store

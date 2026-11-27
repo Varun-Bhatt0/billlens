@@ -1,0 +1,88 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web-app:
+    name: Build web app + tests (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: microsoft/setup-msbuild@v2
+      - uses: NuGet/setup-nuget@v2
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore NuGet packages
+        run: nuget restore bills_project.sln
+
+      - name: Build web application (Release)
+        run: msbuild bills_project\bills_project.csproj /p:Configuration=Release /p:SolutionDir=${{ github.workspace }}\ /m /nologo /verbosity:minimal
+
+      - name: Unit tests (.NET Framework 4.8 and .NET 10)
+        run: dotnet test tests\BillsProject.Tests\BillsProject.Tests.csproj --configuration Release --logger "trx;LogFileName=results.trx" --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-windows
+          path: TestResults/*.trx
+
+  ocr-benchmark:
+    name: OCR accuracy benchmark (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Tesseract and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr fonts-dejavu-core fonts-liberation fonts-freefont-ttf
+          tesseract --version
+
+      - name: Unit tests (.NET 10)
+        run: dotnet test tests/BillsProject.Tests/BillsProject.Tests.csproj --configuration Release
+
+      - name: Generate held-out benchmark bills
+        run: |
+          pip install pillow
+          python tools/ocr-benchmark/generate_bills.py --count 100 --seed 2026 --out tools/ocr-benchmark/test
+
+      # Fails the build if field accuracy drops below 75% (measured: ~84% on this set).
+      - name: Run benchmark (baseline vs improved)
+        run: >
+          dotnet run -c Release --project tools/OcrBenchmark --
+          --data tools/ocr-benchmark/test --mode both --parallel 4
+          --report ocr-benchmark.md --min-accuracy 0.75
+
+      - name: Publish results to the job summary
+        if: always()
+        run: cat ocr-benchmark.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ocr-benchmark
+          path: ocr-benchmark.md

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Measures OCR field accuracy (bill number, date, amount) on the synthetic bills from
+    tools/ocr-benchmark/generate_bills.py. Links the web app's OCR source files so it measures
+    exactly the code that runs in production. Needs Tesseract on PATH (or pass the tesseract option).
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\bills_project\Services\BillFormat.cs" Link="Linked\BillFormat.cs" />
+    <Compile Include="..\..\bills_project\Services\BillTextParser.cs" Link="Linked\BillTextParser.cs" />
+    <Compile Include="..\..\bills_project\Services\Ocr\*.cs" Link="Linked\Ocr\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>
