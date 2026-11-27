@@ -46,7 +46,7 @@ jobs:
   ocr-benchmark:
     name: OCR accuracy benchmark (Linux)
     runs-on: ubuntu-latest
-        timeout-minutes: 25
+    timeout-minutes: 25
     env:
       OMP_THREAD_LIMIT: "1"
     steps:

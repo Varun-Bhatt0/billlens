@@ -12,3 +12,6 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 5
+    ignore:
+      # Pinned: newer versions pull in System.Memory and friends on .NET Framework 4.8
+      - dependency-name: "BCrypt.Net-Next"
